@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 import { Task } from "./components/task";
@@ -43,6 +44,22 @@ export function App() {
     setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
   };
 
+  const handleToogleCompete = async (id: number, completed: boolean) => {
+    try {
+      await api.put(`/${id}`, {
+        completed: !completed,
+      });
+
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) =>
+          todo.id === id ? { ...todo, completed: !completed } : todo
+        )
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar a tarefa: ", error);
+    }
+  };
+
   return (
     <>
       <Header onAddTodo={handleAddTodo} />
@@ -61,12 +78,14 @@ export function App() {
         </div>
 
         <div className="tasks-list">
-          {todos.map(({ id, todo }) => (
+          {todos.map(({ id, todo, completed }) => (
             <Task
               key={id}
               id={id}
               description={todo}
+              completed={completed}
               onDelete={handleDeleteTodo}
+              onToggleComplete={handleToogleCompete}
             />
           ))}
         </div>
